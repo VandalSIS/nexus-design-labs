@@ -54,9 +54,9 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section with Parallax */}
-      <ParallaxHero backgroundImage={heroBg} className="min-h-screen flex items-center pt-20">
-        <div className="container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto text-center">
+      <ParallaxHero backgroundImage={heroBg} className="min-h-screen relative">
+        <div className="container mx-auto px-4 min-h-screen flex flex-col items-center justify-center py-20">
+          <div className="max-w-4xl w-full text-center">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/90 text-sm font-medium mb-6">
                 🚀 12+ ani de excelență în dezvoltare software
@@ -124,19 +124,19 @@ const Index = () => {
         </div>
       </AnimatedBackground>
 
-      {/* Stats Section */}
-      <AnimatedBackground variant="dots" className="py-24 bg-primary text-primary-foreground">
+      {/* Stats Section with Parallax */}
+      <ParallaxHero backgroundImage={heroBg} className="py-24" overlayOpacity={0.85}>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <motion.div key={stat.label} className="text-center" initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }}>
-                <div className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-2"><AnimatedCounter end={stat.value} suffix={stat.suffix} /></div>
-                <p className="text-primary-foreground/80 font-medium">{stat.label}</p>
+                <div className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold mb-2 text-white"><AnimatedCounter end={stat.value} suffix={stat.suffix} /></div>
+                <p className="text-white/80 font-medium">{stat.label}</p>
               </motion.div>
             ))}
           </div>
         </div>
-      </AnimatedBackground>
+      </ParallaxHero>
 
       {/* Process Section */}
       <section className="py-24 bg-muted/30 overflow-hidden">

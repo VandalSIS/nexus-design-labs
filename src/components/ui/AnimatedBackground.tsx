@@ -37,7 +37,7 @@ const AnimatedBackground = ({ variant = 'hero', className = '', children }: Anim
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
 
-      const particleCount = 80;
+      const particleCount = 35;
       const particleArray: Particle[] = [];
 
       for (let i = 0; i < particleCount; i++) {
@@ -45,13 +45,14 @@ const AnimatedBackground = ({ variant = 'hero', className = '', children }: Anim
           id: i,
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          size: Math.random() * 3 + 1,
-          speedX: (Math.random() - 0.5) * 0.5,
-          speedY: (Math.random() - 0.5) * 0.5,
-          opacity: Math.random() * 0.5 + 0.2,
+          size: Math.random() * 2.5 + 1,
+          speedX: (Math.random() - 0.5) * 0.3,
+          speedY: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.4 + 0.2,
         });
       }
 
+      let animationId: number;
       const animate = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -70,31 +71,33 @@ const AnimatedBackground = ({ variant = 'hero', className = '', children }: Anim
           ctx.fill();
         });
 
-        // Draw connecting lines
-        particleArray.forEach((a, i) => {
-          particleArray.slice(i + 1).forEach((b) => {
-            const dx = a.x - b.x;
-            const dy = a.y - b.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+        // Draw connecting lines - optimized with distance check first
+        for (let i = 0; i < particleArray.length; i++) {
+          for (let j = i + 1; j < particleArray.length; j++) {
+            const dx = particleArray[i].x - particleArray[j].x;
+            const dy = particleArray[i].y - particleArray[j].y;
+            const distSq = dx * dx + dy * dy;
 
-            if (distance < 150) {
+            if (distSq < 22500) { // 150^2
+              const distance = Math.sqrt(distSq);
               ctx.beginPath();
-              ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 150)})`;
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.08 * (1 - distance / 150)})`;
               ctx.lineWidth = 0.5;
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
+              ctx.moveTo(particleArray[i].x, particleArray[i].y);
+              ctx.lineTo(particleArray[j].x, particleArray[j].y);
               ctx.stroke();
             }
-          });
-        });
+          }
+        }
 
-        requestAnimationFrame(animate);
+        animationId = requestAnimationFrame(animate);
       };
 
       animate();
 
       return () => {
         window.removeEventListener('resize', resizeCanvas);
+        cancelAnimationFrame(animationId);
       };
     }
   }, [variant]);
@@ -111,82 +114,24 @@ const AnimatedBackground = ({ variant = 'hero', className = '', children }: Anim
           className="absolute inset-0 w-full h-full"
         />
 
-        {/* Floating Geometric Shapes */}
+        {/* Floating Geometric Shapes - Simplified */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
-            className="absolute top-[20%] left-[10%] w-20 h-20 border-2 border-white/10 rounded-full"
-            animate={{
-              y: [0, -30, 0],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
+            className="absolute top-[20%] left-[10%] w-16 h-16 border border-white/10 rounded-full"
+            animate={{ y: [0, -15, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute top-[60%] left-[85%] w-16 h-16 border-2 border-white/10"
+            className="absolute top-[60%] left-[85%] w-12 h-12 border border-white/10"
             style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' }}
-            animate={{
-              y: [0, 20, 0],
-              rotate: [0, -180, -360],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute top-[30%] right-[20%] w-24 h-24 border-2 border-white/5 rounded-lg"
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 90, 0],
-            }}
-            transition={{
-              duration: 18,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            className="absolute top-[30%] right-[20%] w-16 h-16 border border-white/5 rounded-lg"
+            animate={{ rotate: [0, 45, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
           />
-          <motion.div
-            className="absolute bottom-[20%] left-[30%] w-12 h-12 bg-white/5 rounded-full"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        </div>
-
-        {/* Code Lines Animation */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute font-mono text-xs text-white/40 whitespace-nowrap"
-              style={{
-                top: `${15 + i * 18}%`,
-                left: '-20%',
-              }}
-              animate={{
-                x: ['0%', '120%'],
-              }}
-              transition={{
-                duration: 20 + i * 5,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: i * 2,
-              }}
-            >
-              {['const app = createApp();', 'async function fetchData() {', 'return response.json();', 'npm install react', 'export default Component;'][i]}
-            </motion.div>
-          ))}
         </div>
 
         {/* Dark Overlay */}
@@ -203,28 +148,14 @@ const AnimatedBackground = ({ variant = 'hero', className = '', children }: Anim
       <div className={`relative overflow-hidden ${className}`}>
         <div className="absolute inset-0">
           <motion.div
-            className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl"
-            animate={{
-              x: [0, 100, 0],
-              y: [0, 50, 0],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            className="absolute top-0 left-0 w-[500px] h-[500px] rounded-full bg-primary/5 blur-3xl"
+            animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+            transition={{ duration: 25, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-primary-light/5 blur-3xl"
-            animate={{
-              x: [0, -50, 0],
-              y: [0, -100, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
+            className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full bg-primary-light/5 blur-3xl"
+            animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
           />
         </div>
         <div className="relative z-10">{children}</div>
